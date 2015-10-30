@@ -12,6 +12,7 @@
     "express-secure-only": "^0.2.1",
     "helmet": "^0.13.0",
     "morgan": "^1.6.1",
+    "node-env-file": "^0.1.7",
     "vcap_services": "^0.1.7",
     "watson-developer-cloud": "^0.10.6"
   },
@@ -55,10 +56,13 @@
     "build": "browserify src/index.js | uglifyjs -nc > public/js/index.js",
     "watch": "watchify -v -d -o public/js/index.js src/index.js"
   },
+  "browser": {
+    "phaser": "./vendor/phaser.js"
+  },
   "devDependencies": {
     "browserify": "^12.0.1",
     "browserify-shim": "^3.8.11",
-    "watchify": "^3.6.0",
-    "uglifyjs": "^2.4.10"
+    "uglifyjs": "^2.4.10",
+    "watchify": "^3.6.0"
   }
 }

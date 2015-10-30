@@ -69,18 +69,55 @@ exports.onFileProgress = function(options, ondata, running, onerror, onend, samp
   fileBlock(offset, chunkSize, file, readChunk);
 };
 
+exports.createAlchemyProxy = function() {
+  return {
+    getAlchemyRelations: function(text, callback) {
+      var url = '/api/alchemy-relations';
+      var relationsRequest = new XMLHttpRequest();
+
+      relationsRequest.open('POST', url, true);
+      relationsRequest.setRequestHeader('csrf-token', $('meta[name="ct"]').attr('content'));
+      relationsRequest.setRequestHeader('Content-type', 'application/json');
+
+      relationsRequest.onreadystatechange = function() {
+        if (relationsRequest.readyState !== 4) {
+          return;
+        }
+
+        if (relationsRequest.status === 200) {
+          var resp = JSON.parse(relationsRequest.responseText);
+          callback(null, resp);
+        } else {
+          var error = 'Cannot reach server';
+          if (relationsRequest.responseText) {
+            try {
+              error = JSON.parse(relationsRequest.responseText);
+            } catch (e) {
+              error = relationsRequest.responseText;
+            }
+          }
+
+          callback(error);
+        }
+      };
+
+      relationsRequest.send(JSON.stringify({ text: text }));
+    }
+  };
+};
+
 exports.createTokenGenerator = function() {
   // Make call to API to try and get token
-  var hasBeenRunTimes = 0;
+  var _speechToTextHasBeenRunTimes = 0;
   return {
-    getToken: function(callback) {
-      ++hasBeenRunTimes;
-      if (hasBeenRunTimes > 5) {
+    getSpeechToTextToken: function(callback) {
+      ++_speechToTextHasBeenRunTimes;
+      if (_speechToTextHasBeenRunTimes > 5) {
         var err = new Error('Cannot reach server');
         callback(null, err);
         return;
       }
-      var url = '/api/token';
+      var url = '/api/speech-to-text-token';
       var tokenRequest = new XMLHttpRequest();
       tokenRequest.open('POST', url, true);
       tokenRequest.setRequestHeader('csrf-token',$('meta[name="ct"]').attr('content'));
@@ -104,7 +141,7 @@ exports.createTokenGenerator = function() {
       };
       tokenRequest.send();
     },
-    getCount: function() { return hasBeenRunTimes; }
+    getSpeechToTextCount: function() { return _speechToTextHasBeenRunTimes; }
   };
 };
 

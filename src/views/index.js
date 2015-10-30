@@ -23,7 +23,7 @@ var initPlaySample = require('./playsample').initPlaySample;
 var initRecordButton = require('./recordbutton').initRecordButton;
 var initFileUpload = require('./fileupload').initFileUpload;
 var initDisplayMetadata = require('./displaymetadata').initDisplayMetadata;
-
+var initGame = require('./game').initGame;
 
 exports.initViews = function(ctx) {
   console.log('Initializing views...');
@@ -36,4 +36,5 @@ exports.initViews = function(ctx) {
   initAnimatePanel();
   initShowTab();
   initDisplayMetadata();
+  initGame(ctx);
 };

@@ -93,8 +93,8 @@ var initSocket = exports.initSocket = function(options, onopen, onlistening, onm
     console.log('WS onclose: ', evt);
     if (evt.code === 1006) {
       // Authentication error, try to reconnect
-      console.log('generator count', tokenGenerator.getCount());
-      if (tokenGenerator.getCount() > 1) {
+      console.log('generator count', tokenGenerator.getSpeechToTextCount());
+      if (tokenGenerator.getSpeechToTextCount() > 1) {
         $.publish('hardsocketstop');
         throw new Error('No authorization token is currently available');
       }

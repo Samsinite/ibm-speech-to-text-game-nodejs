@@ -16,36 +16,59 @@
 
 'use strict';
 
-var express      = require('express'),
-    app          = express(),
-    vcapServices = require('vcap_services'),
-    extend       = require('util')._extend,
-    watson       = require('watson-developer-cloud');
+var express      = require('express');
+var app          = express();
+var vcapServices = require('vcap_services');
+var extend       = require('util')._extend;
+var watson       = require('watson-developer-cloud');
+var env          = require('node-env-file');
 
 // Bootstrap application settings
 require('./config/express')(app);
 
+// Load .env environmental variables
+env(__dirname + '/.env', { raise: false });
+
+var alchemyApiCredentials = vcapServices.getCredentials('alchemy_api');
+
 // For local development, replace username and password
-var config = extend({
+var speechToTextConfig = extend({
   version: 'v1',
   url: 'https://stream.watsonplatform.net/speech-to-text/api',
-  username: '<username>',
-  password: '<password>'
+  username: process.env.USERNAME || '<username>',
+  password: process.env.PASSWORD || '<password>'
 }, vcapServices.getCredentials('speech_to_text'));
 
-var authService = watson.authorization(config);
+var alchemyConfig = extend({
+  api_key: process.env.ALCHEMY_API_KEY || '<api_key>'
+}, vcapServices.getCredentials('alchemy_api'));
+
+var speechToTextAuthService = watson.authorization(speechToTextConfig);
+
+var alchemyLanguage = watson.alchemy_language(alchemyConfig);
 
 app.get('/', function(req, res) {
   res.render('index', { ct: req._csrfToken });
 });
 
-// Get token using your credentials
-app.post('/api/token', function(req, res, next) {
-  authService.getToken({url: config.url}, function(err, token) {
+// Get token using your speech-to-text credentials
+app.post('/api/speech-to-text-token', function(req, res, next) {
+  speechToTextAuthService.getToken({url: speechToTextConfig.url}, function(err, token) {
     if (err)
       next(err);
     else
       res.send(token);
+  });
+});
+
+// User our secret API key to proxy request to the alchemy-keywords API
+app.post('/api/alchemy-relations', function(req, res, next) {
+  alchemyLanguage.relations(req.body, function(err, response) {
+    if (err) {
+      next(err);
+    } else {
+      res.send(response);
+    }
   });
 });
 
