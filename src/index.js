@@ -31,13 +31,6 @@ $(document).ready(function() {
   var tokenGenerator = utils.createTokenGenerator();
   var alchemyProxy = utils.createAlchemyProxy();
 
-  alchemyProxy.getAlchemyRelations(
-    "Move the fairy to the left side of the screen.",
-    function(err, json) {
-      console.log(json);
-    }
-  )
-
   // Make call to API to try and get tokens
   tokenGenerator.getSpeechToTextToken(function(err, token) {
     window.onbeforeunload = function() {
