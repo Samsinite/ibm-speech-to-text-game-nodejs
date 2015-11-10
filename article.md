@@ -180,7 +180,7 @@ Now that we have an API endpoint to proxy Alchemy relations API requests, lets u
   };
   ```
 
-Now, the Alchemy API proxy can be created and used like so:
+Here is an example of how to use the Alchemy API proxy object that we just created:
   ```js
   var utils = require('./utils');
   var alchemyProxy = utils.createAlchemyProxy();
@@ -228,7 +228,7 @@ To create the game, we are going to stand on the shoulders of giants and use the
 <script src="js/index.js"></script>
 ```
 
-Now create `src/views/game.js` which will house the core game code. Working with the Phaser framework is quite simple at its core, and the speech-to-text game can be essentially composed of 3 functions: `preload`, `create`, and `update`. `preload` is used to load assets such as images and sprites used in the game, `create` is for setting up the game, and `update` for detecting button presses and collisions. Start by creating a function to load and setup the game:
+Next lets create a new file at `src/views/game.js` which will house the core game code. Working with the Phaser framework is quite simple at its core, and the speech-to-text game can be essentially composed of 3 functions: `preload`, `create`, and `update`. `preload` is used to load assets such as images and sprites used in the game, `create` is for setting up the game, and `update` for detecting button presses and collisions. Start by creating a function to load and setup the game:
   ```js
   /* global Phaser */
 
@@ -333,7 +333,7 @@ Now create `src/views/game.js` which will house the core game code. Working with
 
   exports.initGame = initGame;
   ```
-On the line containing `game = new Phaser.Game(750, 300, Phaser.AUTO, 'example-game', { preload: preload, create: create, update: update, render: render });`, take note of the string `example-game`. This is the name of html element id that will be the container for the game. Now, open up `views/index.ejs` again and add the element to the html: `<div id="example-game"></div>`. Then, update `src/views/index.js` to initialize the game using the `initGame` function exported from `src/views/game.js`:
+On the line containing `game = new Phaser.Game(750, 300, Phaser.AUTO, 'example-game', { preload: preload, create: create, update: update, render: render });`, take note of the string `'example-game'`. This is the name of html element id that will be the container for the game. Now, open up `views/index.ejs` again and add the element to the html: `<div id="example-game"></div>`. Then, update `src/views/index.js` to initialize the game using the `initGame` function exported from `src/views/game.js`:
   ```js
   var initSessionPermissions = require('./sessionpermissions').initSessionPermissions;
   var initAnimatePanel = require('./animatepanel').initAnimatePanel;
@@ -360,9 +360,9 @@ On the line containing `game = new Phaser.Game(750, 300, Phaser.AUTO, 'example-g
   };
   ```
 
-Now that the game is setup, the application can be built by running `$ npm build` from the command line, then ran by running `$ npm start` from the command line. Loading the page in a browser should display the character and a house inside of the element `#example-game`.
+Now that the game is setup, the application can be built and ran by running `$ npm build` and `$ npm start` respectively from the command line. Open your browser and navigate to `http://localhost:3000` and you should see the character and a house being drawn inside of the element `#example-game`.
 
-## Make Melvin the magin fairy move
+## Make Melvin the magic fairy move
 To allow the game to toggle and process speech input, lets modify `src/views/recordbutton.js` to expose a callback that toggles and processes speech:
   ```js
   var Microphone = require('../Microphone');
@@ -412,9 +412,9 @@ To allow the game to toggle and process speech input, lets modify `src/views/rec
     };
   };
   ```
-  The above code is similar to before, but the main changes have exposed a callback on the view context called `toggleRecordSpeechCommand` that toggles the microphone, and submits speech-to-text results to the Alchemy API using the previously exposed `alchemyProxy` object. When relations have been successfully processed by Alchemy API, they are then set onto the view context as the `relations` attribute.
+  The above code is similar to before, but the button event was removed and replaced by a callback that is assigned to the view context via an attribute named `toggleRecordSpeechCommand`. The `toggleRecordSpeechCommand` function toggles the microphone and submits speech-to-text results to the Alchemy API using the previously exposed `alchemyProxy` object. After relations have been successfully processed by Alchemy API, they are then shared with other views through the `relations` attribute on the view context.
 
-  Now, lets update the game to handle space button presses and associate assigned view context relations with commands. Open `src/views/game.js` again and at the beginning of the file, lets add code that describes what our subjects and actions will look like, a function for detecting direction in the text, and a method for parsing relations for a command:
+  Now, lets update the game to handle space button presses and associate resolved relations with commands. Open `src/views/game.js` again and at the beginning of the file, add the code below that describes what the subjects and actions will look like, a function for detecting direction in the text, and a method for parsing relations for a command:
   ```js
   var LEFT_COMMAND = 'left';
   var RIGHT_COMMAND = 'right';
@@ -457,7 +457,7 @@ To allow the game to toggle and process speech input, lets modify `src/views/rec
   }
   ```
 
-  Now lets change the `update` function in the game runloop to detect space presses, and look for commands when it detects relations on the view context:
+  Next, change the `update` function in the game to detect space presses and look for commands when new relations are detected on the view context:
   ```js
   function update() {
     if (updateCount > updateLength) {
@@ -492,7 +492,7 @@ To allow the game to toggle and process speech input, lets modify `src/views/rec
   }
   ```
 
-  Last, rebuild and run the application again by running `$ npm build` then `$ npm start` and try out the features.
+Last, rebuild and run the application again by running `$ npm build` then `$ npm start` respectively and try out the new features.
 
 ## Making Melvin cause mischief and level up
 Finally, lets update the game to allow Melvin the fairy to destroy the house, and level up. Again, open `src/views/game.js` and generate a function to parse destroy action commands, and add the action to the `relationActions` array:
@@ -515,7 +515,7 @@ Finally, lets update the game to allow Melvin the fairy to destroy the house, an
   ];
   ```
 
-Then create a collision handler that will toggle a flag when Melvin the fairy is touching a house, and modify the `update` function to detect when the fair is touching the house as well as detect destroy commands:
+Then create a collision handler that will toggle a flag when Melvin the fairy is touching a house, and modify the `update` function to detect collisions between the fairy and houses, as well as respond to destroy commands:
   ```js
   var DESTROY_HOUSE_COMMAND = 'destroy_house';
 
@@ -559,7 +559,7 @@ Then create a collision handler that will toggle a flag when Melvin the fairy is
   }
   ```
 
-Once again, rebuild and run the application again by running `$ npm build` then `$ npm start` and try out the final feature.
+Once again, rebuild and run the application again by running `$ npm build` then `$ npm start` and try out the final results. A demo of the final game can be played [here][speech-to-text-game] and the final source code can be view [here][speech-to-text-repo].
 
 ## Conclusion
 In this article, you learned how to use both the Watson Speech to Text service, and the Alchemy API service to create a speech controlled game. Hopefully this sample application helps introduce the power and potential that can be leveraged by using these API's and encourages readers to continue to experiment and create power applications that extend well beyond the application that was presented here.
@@ -576,3 +576,5 @@ In this article, you learned how to use both the Watson Speech to Text service, 
 [node-js]: [https://nodejs.org/en/]
 [phaser]: [http://phaser.io/]
 [phaser-stable-download]: [https://github.com/photonstorm/phaser/releases/download/v2.4.4/phaser.min.js]
+[speech-to-text-game]: [http://speech-to-text-game.mybluemix.net/]
+[speech-to-text-repo]: [https://github.com/Samsinite/ibm-speech-to-text-game-nodejs]
