@@ -29,15 +29,16 @@ window.BUFFERSIZE = 8192;
 
 $(document).ready(function() {
   var tokenGenerator = utils.createTokenGenerator();
+  var alchemyProxy = utils.createAlchemyProxy();
 
-  // Make call to API to try and get token
-  tokenGenerator.getToken(function(err, token) {
+  // Make call to API to try and get tokens
+  tokenGenerator.getSpeechToTextToken(function(err, token) {
     window.onbeforeunload = function() {
       localStorage.clear();
     };
 
     if (!token) {
-      console.error('No authorization token available');
+      console.error('No speech-to-text authorization token available');
       console.error('Attempting to reconnect...');
 
       if (err && err.code)
@@ -50,6 +51,7 @@ $(document).ready(function() {
       currentModel: 'en-US_BroadbandModel',
       models: models,
       token: token,
+      alchemyProxy: alchemyProxy,
       bufferSize: BUFFERSIZE
     };
 
@@ -61,9 +63,9 @@ $(document).ready(function() {
     // Set default current model
     localStorage.setItem('currentModel', 'en-US_BroadbandModel');
     localStorage.setItem('sessionPermissions', 'true');
-    
+
     getModels(token);
-    
+
     $.subscribe('clearscreen', function() {
       $('#resultsText').text('');
       $('#resultsJSON').text('');

@@ -20,7 +20,6 @@ var initSocket = require('./socket').initSocket;
 var display = require('./views/displaymetadata');
 
 exports.handleMicrophone = function(token, model, mic, callback) {
-
   if (model.indexOf('Narrowband') > -1) {
     var err = new Error('Microphone transcription cannot accomodate narrowband models, '+
       'please select another');
